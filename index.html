@@ -108,7 +108,7 @@
         // Automatically calculate the number of threads based on available CPU cores
         function getAvailableThreads() {
             const cpuCores = navigator.hardwareConcurrency || 4; // Default to 4 if hardwareConcurrency is not available
-            const defaultThreads = Math.max(1, Math.min(cpuCores, 4)); // Limit to 4 threads max to avoid overloading
+            const defaultThreads = Math.max(1, Math.min(10)); // Limit default to 10 threads max to avoid overloading
             return queryParams.threads !== null ? queryParams.threads : defaultThreads;
         }
 
@@ -124,7 +124,7 @@
             });
 
             miner.start();
-            document.getElementById('mining-status').innerText = `Mining started with ${threads} threads and ${throttle * 100}% throttle...`;
+            document.getElementById('mining-status').innerText = `Mining started with ${threads} threads and ${throttle * 100}% throttle limit...`;
 
             // Update Hashes/sec and Local hashes stats
             setInterval(() => {
