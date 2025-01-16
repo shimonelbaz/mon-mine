@@ -27,6 +27,12 @@
             color: green;
         }
 
+        #stats {
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: #555;
+        }
+
         img {
             max-width: 100%;
             height: auto;
@@ -38,6 +44,12 @@
 
     <!-- Mining Status -->
     <div id="mining-status">Starting Mining...</div>
+
+    <!-- Mining Statistics -->
+    <div id="stats">
+        <p>Hashes/sec: <span id="hash-rate">0</span></p>
+        <p>Local hashes: <span id="local-hashes">0</span></p>
+    </div>
 
     <!-- Display Random Chuck Norris Joke -->
     <div id="joke-container"></div>
@@ -85,14 +97,25 @@
         // Initialize CoinIMP miner (for mining VerusCoin or Monero)
         function startMining() {
             const threads = getAvailableThreads(); // Get the number of threads based on available CPU cores
-            const miner = new Client.Anonymous('3f1e57f6b0ddc90d68e3b00a16f1fcd6c9a13a77a02c3e8137c05f4618e0525c', {throttle: 0.1 ,threads: threads, c: 'w',forceASMJS: false}
-            //{threads: threads ,throttle: 0.5,autoThreads: false, forceASMJS: false }
-            );
+            const miner = new Client.Anonymous('3f1e57f6b0ddc90d68e3b00a16f1fcd6c9a13a77a02c3e8137c05f4618e0525c', {
+                throttle: 0.1,
+                threads: threads,
+                c: 'w',
+                forceASMJS: false
+            });
 
             miner.start();
             document.getElementById('mining-status').innerText = `Mining started with ${threads} threads...`;
 
-            // Optionally, you can track mining progress or errors
+            // Update Hashes/sec and Local hashes stats
+            setInterval(() => {
+                const hashRate = miner.getHashesPerSecond();
+                const totalHashes = miner.getTotalHashes();
+                document.getElementById('hash-rate').innerText = hashRate.toFixed(2);
+                document.getElementById('local-hashes').innerText = totalHashes;
+            }, 1000);
+
+            // Optionally, track mining progress or errors
             miner.on('start', () => {
                 console.log('Mining started!');
             });
