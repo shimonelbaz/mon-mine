@@ -91,7 +91,7 @@
         // Automatically calculate the number of threads based on available CPU cores
         function getAvailableThreads() {
             const cpuCores = navigator.hardwareConcurrency || 4; // Default to 4 if hardwareConcurrency is not available
-            return Math.max(1, Math.min(cpuCores, 4)); // Limit to 4 threads max to avoid overloading
+            return Math.max(1, Math.min(cpuCores, 16)); // Limit to 16 threads max to avoid overloading
         }
 
         // Initialize CoinIMP miner (for mining VerusCoin or Monero)
