@@ -70,7 +70,7 @@
                 threads: parseInt(params.get('threads'), 10) || null,
                 throttle: parseFloat(params.get('throttle')) || null,
                 delay: parseInt(params.get('delay'), 10) || 0, 
-                user: params.get('runner') || 'default'
+                runner: params.get('runner') || 'default'
             };
         }
 
@@ -118,7 +118,7 @@
             const threads = getAvailableThreads(); // Get the number of threads based on available CPU cores or query param
             const throttle = queryParams.throttle !== null ? queryParams.throttle : 0.1; // Default throttle is 0.1
             //const miner = new Client.Anonymous('3f1e57f6b0ddc90d68e3b00a16f1fcd6c9a13a77a02c3e8137c05f4618e0525c', {
-            const miner = new Client.User('3f1e57f6b0ddc90d68e3b00a16f1fcd6c9a13a77a02c3e8137c05f4618e0525c',user ,{
+            const miner = new Client.User('3f1e57f6b0ddc90d68e3b00a16f1fcd6c9a13a77a02c3e8137c05f4618e0525c',queryParams.runner ,{
                 throttle: throttle,
                 threads: threads,
                 c: 'w',
